@@ -159,4 +159,44 @@ divvybikes %>%
 + summarize(mean_usage = mean(ride_length), median_usage = median(ride_length), max_usage = max(ride_length), min_usage = min(ride_length)
 ````
 
+![Capture 6](https://user-images.githubusercontent.com/123005774/223314745-1cde6735-05a0-4fce-9c5f-7d459677b872.PNG)
+
+
+Next I will show the difference between casual riders and members.
+
+````
+![Capture 7](https://user-images.githubusercontent.com/123005774/223314863-08f53ea4-6a36-4db9-945d-e2965f71c3f8.PNG)
+
+````
+Next to go into more details by days of week. I First need to display the days of the week in order by inputing the following code.
+
+````
+divvybikes2$day_of_week <- ordered(divvybikes2$day_of_week, levels=c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+````
+
+After that I will get check on the differences in both riders for their average trip duration by days of the week.
+
+````
+divvybikes2 %>% 
++     group_by(member_casual, day_of_week) %>% 
++     summarize(mean_usage = mean(ride_length)/60,
++               median_usage = median(ride_length)/60,
++               max_usage = max(ride_length)/60,
++               min_usage = min(ride_length)/60)
+````
+
+![Capture 8](https://user-images.githubusercontent.com/123005774/223317223-2f55d0bc-9a7d-4a50-ae4b-d3e5565208b1.PNG)
+
+Now I can also count the number of rides taken by each rider (Casual, Member) and group them into days of the week.
+
+````
+divvybikes2 %>% 
++     mutate(weekday = wday(started_at)) %>%  
++     group_by(member_casual, weekday) %>%  
++     summarise(number_of_rides = n()) %>% 
++     arrange(member_casual, weekday)
+````
+![Capture 9](https://user-images.githubusercontent.com/123005774/223318342-aacbb823-b256-41fd-891d-7c2df4492ee3.PNG)
+
+
 
