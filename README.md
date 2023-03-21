@@ -155,8 +155,8 @@ divvybikes2 <- divvybikes [!(divvybikes$ride_length<0),]
 Now that the data was cleaned successfully, I can start to analyze the data. I can start by using some basic statistic knowledge to calculate the average, median, maximum, and minimun trip durations.
 
 ````
-divvybikes %>%
-+ summarize(mean_usage = mean(ride_length), median_usage = median(ride_length), max_usage = max(ride_length), min_usage = min(ride_length)
+divvybikes2 %>%
+summarize(mean_usage = mean(ride_length), median_usage = median(ride_length), max_usage = max(ride_length), min_usage = min(ride_length)
 ````
 
 ![Capture 6](https://user-images.githubusercontent.com/123005774/223314745-1cde6735-05a0-4fce-9c5f-7d459677b872.PNG)
@@ -197,6 +197,46 @@ divvybikes2 %>%
 +     arrange(member_casual, weekday)
 ````
 ![Capture 9](https://user-images.githubusercontent.com/123005774/223318342-aacbb823-b256-41fd-891d-7c2df4492ee3.PNG)
+
+We can also look at the number of rides per day with its corresponding average trip duration.
+
+````
+divvybikes2 %>% 
++     mutate(weekday = wday(started_at, label = TRUE)) %>%  
++     group_by(member_casual, weekday) %>%  
++     summarise(number_of_rides = n(),average_duration = mean(ride_length)/60) %>%
++     arrange(member_casual, weekday)
+````
+![Capture 10](https://user-images.githubusercontent.com/123005774/226686454-3323e65e-c627-4b2a-9e9c-244ce62f5398.PNG)
+
+After checking the week I would like to see the number of rides per month for each member.
+
+````
+bikeshare2 %>% 
+  group_by(member_casual, month) %>%  
+  summarise(number_of_rides = n()) %>%
+  arrange(member_casual, month)
+````
+![Capture 11](https://user-images.githubusercontent.com/123005774/226695864-fe78b432-8363-4c86-8b4d-4622b690b09c.PNG)
+
+After this is finally the average trip duration for each month.
+
+````
+bikeshare2 %>% 
+  group_by(member_casual, month) %>%  
+  summarise(average_duration = mean(ride_length)/60) %>%
+  arrange(member_casual, month)
+````
+
+![Capture 12](https://user-images.githubusercontent.com/123005774/226696459-b7ead7df-0d1f-49af-bcaa-9ea58ee8f5e8.PNG)
+
+With the calculations above, we can tell there is a significant difference in casual riders and members.
+
+# 5. Share
+
+Now we are ready to create visualizations to get a clearer insight about the case study.
+
+First we will get a look at which days rider used the cyclist service the most. I also noticed that the casual riders were less consistent and the members had a more consistent pattern.
 
 
 
