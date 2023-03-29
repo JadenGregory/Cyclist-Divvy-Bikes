@@ -80,7 +80,7 @@ divvybikes <- bind_rows(may, june, july, august, september, october, november, d
 
 Once the datasets are merged its important to check for any error or faults in the data.
 
-This will be a good time to check if columns were properly named and in their appropriate data types, know the exact number of records that we are dealing with and get initial summary statistics.
+This will be a good time to check if columns were properly named and in their appropriate data types, and know the exact number of records that we are dealing with and get initial summary statistics.
 
 ````
 # List of Column Names
@@ -212,7 +212,7 @@ divvybikes2 %>%
 After checking the week I would like to see the number of rides per month for each member.
 
 ````
-bikeshare2 %>% 
+divvybikes2 %>% 
   group_by(member_casual, month) %>%  
   summarise(number_of_rides = n()) %>%
   arrange(member_casual, month)
@@ -222,7 +222,7 @@ bikeshare2 %>%
 After this is finally the average trip duration for each month.
 
 ````
-bikeshare2 %>% 
+divvybikes2 %>% 
   group_by(member_casual, month) %>%  
   summarise(average_duration = mean(ride_length)/60) %>%
   arrange(member_casual, month)
@@ -236,7 +236,91 @@ With the calculations above, we can tell there is a significant difference in ca
 
 Now we are ready to create visualizations to get a clearer insight about the case study.
 
-First we will get a look at which days rider used the cyclist service the most. I also noticed that the casual riders were less consistent and the members had a more consistent pattern.
+First we will get a look at which days riders used the cyclist service the most, by creating a visual. I also noticed that the casual riders were less consistent and the members had a more consistent pattern, when looking a the previous data above.
 
+````
+divvybikes2 %>%
+  mutate(weekday = wday(started_at, label = TRUE)) %>%  
+  group_by(member_casual, weekday) %>%  
+  summarise(number_of_rides = n(),average_duration = mean(ride_length)) %>% 
+  arrange(member_casual, weekday) %>% 
+  ggplot(mapping = aes(x = weekday, y = number_of_rides, fill = member_casual))+
+  geom_col(position = "dodge")+
+  facet_grid(~member_casual)+
+  labs(title = "Number of rides on a weekdays basis", subtitle = "Casual vs Member", 
+       caption = "Data collected from Divvy")
+````
+![Capture 22](https://user-images.githubusercontent.com/123005774/228597983-5184f1da-ff1b-4844-bed2-380daf21a5bf.PNG)
 
+Now that we have a better look at the number of rides for each day of the week, we can now move on to see the correlation between the months and the average trip duration in minutes.
+
+````
+divvybikes2 %>% 
+  group_by(member_casual, month) %>%  
+  summarise(number_of_rides = n(),average_duration = mean(ride_length)/60) %>% 
+  arrange(member_casual, month) %>% 
+  ggplot(mapping = aes(x = month, y = average_duration, fill = member_casual))+
+  geom_col(position = "dodge")+
+  coord_flip()+
+  labs(title = "Average trip duration on a monthly basis (Minutes)", subtitle = "Casual vs Member", 
+       caption = "Data collected from Divvy")
+````
+![Capture 23](https://user-images.githubusercontent.com/123005774/228600181-1c0a7986-c848-4a16-a788-d218cfbec942.PNG)
+
+Next I want to see the average trip duration for the day of the week to get a deeper view for each day.
+
+````
+divvybikes2 %>% 
+  group_by(member_casual, day_of_week) %>%  
+  summarise(number_of_rides = n(),average_duration = mean(ride_length)/60) %>%
+  arrange(member_casual, day_of_week) %>% 
+  ggplot(mapping = aes(x = day_of_week, y = average_duration, fill = member_casual))+
+  geom_col(position = "dodge")+
+  facet_grid(~member_casual)+
+  labs(title = "Average trip duration (in minutes) on a weekday basis", subtitle = "Casual vs Member", 
+       caption = "Data collected from Divvy")
+````
+
+![Capture 24](https://user-images.githubusercontent.com/123005774/228602499-3d18e571-c704-41db-8426-b095e22e02cc.PNG)
+
+Now we can look at a time series for the 12 months of data.
+
+````
+divvybikes2 %>% 
+  ggplot(mapping = aes(x = date, color = member_casual))+
+  geom_bar()+
+  labs(title = "A time series for the number of rides for 12 months", subtitle = "Casual vs Member", 
+       caption = "Data collected from Divvy")
+````
+![plot_zoom_png](https://user-images.githubusercontent.com/123005774/228603292-bb4df52f-0907-4265-8b09-b4421c216942.png)
+
+With this information, we can see that there is a difference between casual riders and members. Next we will take an in depth look at the average trip duration within the 12 months.
+
+````
+divvybikes2 %>%
+ggplot( mapping = aes( x = month, y = ride_length/60, group = member_casual, color = member_casual))+
+  stat_summary(geom = "line", fun.y = mean)+
+  labs(title = "Average trip duration in a given year (Minutes)", subtitle = "Casual vs Member", 
+       caption = "Data collected from Divvy")
+````
+![plot_zoom_png](https://user-images.githubusercontent.com/123005774/228605354-2ff88b12-d11c-4315-9ffd-eb3c1e9a3f4c.png)
+
+Now we have a clearer look at the difference between casual riders and members per trip duration for a full year.
+This insight shows the time inconsistencies with casual riders, compared to the more time consistent members.
+
+# 6. Act
+
+Now for the act phase I will summarize the diffrences in the casual riders and members and include the key points. This will be final phase and will wrap up the case study by providing new marketing strategies.
+
+![Divvy_Pricing_SingleRide_1200x960](https://user-images.githubusercontent.com/123005774/228609379-6d1d9e69-778f-4490-a737-93ed5a465e50.jpg)
+
+## Summary
+1. Casual riders use the service more on the weekends compared to members who take a trip more consitently during the weekdays. Members might use the service more to commute to work.
+2. The demand for this service is at its highest in the summer and then at its lowest in the winter, this is the case for both casual riders and members.
+3. Members average trip durations were only half of that compared to casual riders.
+
+## Solution
+1. The company can create a reward system for those who are subscribed to the annual membership. An example would be after a certain amount of miles or rides the members will be rewarded with a free ride or extended time.
+2. Put out more ads during the spring and summer times to target the casual members. This will only be beneficial during the warmest months, as riders use the service less during colder months.
+3. The company can introduce discounts or plans for the weekend only since those seem to be the days casual riders use the service the most.
 
